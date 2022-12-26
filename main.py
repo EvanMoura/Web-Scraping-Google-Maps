@@ -16,7 +16,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 # GUI
 from tkinter.ttk import Label, LabelFrame, Frame, Button, Entry
-from tkinter import Tk, messagebox, filedialog
+from tkinter import Tk
 
         
 class WebScraping(object):
@@ -37,13 +37,11 @@ class WebScraping(object):
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=self.options)    
         self.action = ActionChains(self.driver)
         self.main(product=product, city=city)
-        
-        
+
     @staticmethod
     def get_hour() -> str:
         hour = str(datetime.today())[11:]
         return hour[:8]
-        
         
     def get_links(self, url: str) -> list:
         self.driver.get(url) 
@@ -70,10 +68,10 @@ class WebScraping(object):
         return links
 
     def scraping(self, links: list):
-        n = [] # --> Nomes de lugares
-        t = [] # --> Telefones
-        a = [] # --> Endereços
-        l = [] # --> Links
+        n = []  # --> Nomes de lugares
+        t = []  # --> Telefones
+        a = []  # --> Endereços
+        l = []  # --> Links
         
         for link in links:
             try:
@@ -91,8 +89,7 @@ class WebScraping(object):
                 button_tele.click()
                 tele = pyperclip.paste()
                 a.append(tele)
-                                
-                
+
                 name = self.driver.find_element(By.XPATH, self.XPATH_NAME).text
                 # tele = self.driver.find_element(By.XPATH, self.XPATH_NAME_TELEPHONE).text
                 # addr = self.driver.find_element(By.XPATH, self.XPATH_NAME_ADDRESS).text
@@ -104,11 +101,11 @@ class WebScraping(object):
                 # a.append(addr)
                 l.append(link)
             
-            except Exception as e:
+            except Exception:
                 with open("execution.log", "a") as file_log:
                     file_log.write(f"[Hora] {self.get_hour()} [Erro] falha ao obter informações no link {link}\n")
             
-              #0 #1 #2 #3
+            #  0  1  2  3
         return n, t, a, l
 
     def main(self, product, city):
