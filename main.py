@@ -67,7 +67,7 @@ class WebScraping(object):
             
         return links
 
-    def scraping(self, links: list) -> list:
+    def scraping(self, links: list) -> tuple:
         n = []  # --> Nomes de lugares
         t = []  # --> Telefones
         a = []  # --> Endereços
