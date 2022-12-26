@@ -67,7 +67,7 @@ class WebScraping(object):
             
         return links
 
-    def scraping(self, links: list):
+    def scraping(self, links: list) -> list:
         n = []  # --> Nomes de lugares
         t = []  # --> Telefones
         a = []  # --> Endereços
@@ -108,7 +108,7 @@ class WebScraping(object):
             #  0  1  2  3
         return n, t, a, l
 
-    def main(self, product, city):
+    def main(self, product, city) -> None:
         try: 
             os.system("cls")
             result = self.get_links(url=f"https://www.google.com.br/maps/search/{product}+em+{city}")
@@ -123,11 +123,11 @@ class WebScraping(object):
 
 
 class MainFrame(Frame):
-    def __init__(self, master):
+    def __init__(self, master) -> None:
         super().__init__(master)
         self.create_widgets()
     
-    def create_widgets(self):
+    def create_widgets(self) -> None:
         def get_parameters():
             city = entry_city.get()
             product = entry_product.get().strip()
@@ -151,13 +151,13 @@ class MainFrame(Frame):
 class Gui(Tk):
     NAME_PROGRAM = "Web Scraping"
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.title(self.NAME_PROGRAM)
         self.resizable(width=False, height=False)
         self.create_frame() 
         
-    def create_frame(self):
+    def create_frame(self) -> None:
         main_frame = MainFrame(self)
         main_frame.grid(row=0, column=0)
             
