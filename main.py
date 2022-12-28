@@ -20,8 +20,6 @@ from tkinter import Tk
 
         
 class WebScraping(object):
-    XPATH_BUTTON_TELEPHONE = "/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[9]/div[7]/div[2]/div/div[1]/button"
-    XPATH_BUTTON_ADDRESS   = "/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[9]/div[3]/div[2]/div/div/button"
     XPATH_CONTAINER        = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]'
     XPATH_FINALLY_MESSAGE  = '//span[@class="HlvSq"]'
     XPATH_NAME             = '//h1[@class="DUwDvf fontHeadlineLarge"]'
@@ -63,7 +61,8 @@ class WebScraping(object):
         
         for link in self.driver.find_elements(By.XPATH, self.XPATH_NAME_LINK):
             print(f"\nLink obtido: {link.get_attribute('href')}")
-            links.append(link.get_attribute('href'))
+            if link.get_attribute('href') not in links:
+                links.append(link.get_attribute('href'))
             
         return links
 
@@ -74,37 +73,49 @@ class WebScraping(object):
         l = []  # --> Links
         
         for link in links:
-            try:
-                self.driver.get(link)
-                time.sleep(2)
-                
-                button_addr = self.driver.find_element(By.XPATH, self.XPATH_BUTTON_ADDRESS)
+            self.driver.get(link)
+            time.sleep(2)
+            
+            try:                      
+                button_addr = self.driver.find_element(By.XPATH, "/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[9]/div[3]/div[2]/div/div/button")
                 self.action.move_to_element(button_addr)
                 button_addr.click()
                 addr = pyperclip.paste()
                 a.append(addr)
                 
-                button_tele = self.driver.find_element(By.XPATH, self.XPATH_BUTTON_TELEPHONE)
-                self.action.move_to_element(button_addr)
-                button_tele.click()
-                tele = pyperclip.paste()
-                a.append(tele)
-
-                name = self.driver.find_element(By.XPATH, self.XPATH_NAME).text
+            except Exception as e:
+                pass
+            
+            trys = 1
+            row = 5                                           
+            while True:
+                try:                                               
+                    button_tele = self.driver.find_element(By.CLASS_NAME, f"/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[9]/div[{row}]/div[2]/div/div[1]/button")
+                    self.action.move_to_element(button_addr)
+                    button_tele.click()
+                    tele = pyperclip.paste()        
+                    a.append(int(tele))
+                    break
+                
+                except Exception as e:
+                    print(f"Tentativas [{trys}]")
+                    trys += 1
+                    row += 1
+                    if trys > 10:
+                        a.append("")
+                        break
+                
                 # tele = self.driver.find_element(By.XPATH, self.XPATH_NAME_TELEPHONE).text
                 # addr = self.driver.find_element(By.XPATH, self.XPATH_NAME_ADDRESS).text
+                name = self.driver.find_element(By.XPATH, self.XPATH_NAME).text
                 
-                print(f"\n[{name}] [{tele}] [{addr}] [{link}]")
-
+                #print(f"\n[{name}] [{tele}] [{addr}] [{link}]")
+            
                 n.append(name)
                 # t.append(tele)
                 # a.append(addr)
                 l.append(link)
-            
-            except Exception:
-                with open("execution.log", "a") as file_log:
-                    file_log.write(f"[Hora] {self.get_hour()} [Erro] falha ao obter informações no link {link}\n")
-            
+        
             #  0  1  2  3
         return n, t, a, l
 
