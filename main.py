@@ -71,7 +71,7 @@ class WebScraping(object):
         t = []  # --> Telefones
         a = []  # --> Endereços
         l = []  # --> Links
-        
+            
         for link in links:
             self.driver.get(link)
             time.sleep(2)
@@ -90,34 +90,31 @@ class WebScraping(object):
             row = 5                                           
             while True:
                 try:                                               
-                    button_tele = self.driver.find_element(By.CLASS_NAME, f"/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[9]/div[{row}]/div[2]/div/div[1]/button")
+                    button_tele = self.driver.find_element(By.XPATH, f"/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[9]/div[{row}]/div[2]/div/div[1]/button")
                     self.action.move_to_element(button_addr)
                     button_tele.click()
                     tele = pyperclip.paste()        
-                    a.append(int(tele))
+                    t.append(int(tele))
+                    print(f"\nSucesso ao obter o telefone do link: {link}")
                     break
                 
-                except Exception as e:
-                    print(f"Tentativas [{trys}]")
+                except Exception:
                     trys += 1
                     row += 1
-                    if trys > 10:
-                        a.append("")
+                    if trys == 20:
+                        t.append("")
+                        print(f"\nErro ao obter o telefone do link: {link}")
+                        row -= 20
                         break
-                
-                # tele = self.driver.find_element(By.XPATH, self.XPATH_NAME_TELEPHONE).text
-                # addr = self.driver.find_element(By.XPATH, self.XPATH_NAME_ADDRESS).text
+
                 name = self.driver.find_element(By.XPATH, self.XPATH_NAME).text
-                
-                #print(f"\n[{name}] [{tele}] [{addr}] [{link}]")
             
                 n.append(name)
-                # t.append(tele)
-                # a.append(addr)
                 l.append(link)
         
-            #  0  1  2  3
-        return n, t, a, l
+        df = pd.Series({'Nome': n, 'Telefone':t, 'Endereço': a, 'Links': l}, name=name)
+        df = df.append(row)
+        df.to_excel(f"Resultado da busca.xlsx")
 
     def main(self, product, city) -> None:
         try: 
@@ -125,9 +122,8 @@ class WebScraping(object):
             result = self.get_links(url=f"https://www.google.com.br/maps/search/{product}+em+{city}")
             result_list = list(self.scraping(result))
 
-            df = pd.DataFrame({'Nome': result_list[0], 'Telefone': result_list[1], 'Endereço': result_list[2], 'Links': result_list[3]})
-            df.to_excel(f"Resultado da busca {product}.xlsx")
-            print(df.head())
+            
+            
 
         except KeyboardInterrupt:
             self.driver.quit()
