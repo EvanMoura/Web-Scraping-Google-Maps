@@ -1,5 +1,5 @@
-selenium
 pandas
-openpyxl
 pyperclip
+selenium
 webdriver_manager
+openpyxl
