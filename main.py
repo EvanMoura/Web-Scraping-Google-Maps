@@ -88,7 +88,7 @@ class WebScraping(Bcolors):
             time.sleep(1)
             self.driver.get(url=link)
             self.driver.execute_script("document.body.style.zoom='50%'")
-            time.sleep(5)
+            time.sleep(2.5)
 
             # Obtendo nome
             name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[1]'
@@ -97,28 +97,40 @@ class WebScraping(Bcolors):
 
             # Obtendo endereço
             try:
+                
+                a = 0
                 elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
                 for i in elements_number:
                     value = i.get_attribute("aria-label")
                     if 'Endereço: ' in str(value):
                         x.append(str(value).replace("Endereço: ", ""))
-                    
+                        a += 1
+                        
+                if a == 0:
+                    x.append("Sem informação")
+    
             except selenium.common.exceptions.NoSuchElementException:
                 pass
 
             # Obtendo número
             try:
+                
+                b = 0
                 elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
                 for i in elements_number:
                     value = i.get_attribute("aria-label")
                     if 'Telefone: ' in str(value):
                         x.append(str(value).replace("Telefone: ", ""))
-                
-                    
+                        b += 1
+                        
+                if b == 0:
+                    x.append("Sem informação")
+  
             except selenium.common.exceptions.NoSuchElementException:
                 pass
             
             x.append(link)
+            print(x)
 
             ads.append(x)
 
