@@ -80,7 +80,7 @@ class WebScraping(Bcolors):
         
         ads = []
         for link in links:
-            # print(f"\n[{self.hour()}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
+            print(f"\n[{self.hour()}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
             x = []
 
             time.sleep(1)
