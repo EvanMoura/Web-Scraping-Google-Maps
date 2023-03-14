@@ -25,8 +25,6 @@ O código tem duas funções principais:
 
 Para usar o código, basta instalar as bibliotecas necessárias e executar o arquivo GUI.py. O código foi criado usando o Google Chrome, portanto, certifique-se de que o Chrome esteja instalado em sua máquina.
 
-No método get_links, basta passar a palavra-chave como parâmetro. No método enter_link, basta passar a lista de links coletados como parâmetro.
-
 O resultado final será um arquivo Excel como o nome da pesquisa contendo as informações coletadas.
 
 # Limitações
