@@ -1,9 +1,7 @@
 # System
-import re
 import time
 import pandas as pd
 import selenium.common.exceptions
-from pprint import pprint
 from datetime import datetime
 
 # Selenium
@@ -47,10 +45,10 @@ class WebScraping(Bcolors):
         hour = datetime.today()
         return str(hour)[:-7].replace(" ", "] [")
 
-    def get_links(self) -> list:
+    def get_links(self, value) -> list:
         links = []
 
-        self.driver.get("https://www.google.com.br/maps/search/cadeira/")
+        self.driver.get(f"https://www.google.com.br/maps/search/{value}/")
         home = self.driver.find_element(By.XPATH, self.home)
 
   
@@ -91,7 +89,7 @@ class WebScraping(Bcolors):
             time.sleep(2.5)
 
             # Obtendo nome
-            name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[1]'
+            name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[2]'
             name_store_element = self.driver.find_element(By.XPATH, name_store)
             x.append(name_store_element.text)
 
@@ -130,18 +128,7 @@ class WebScraping(Bcolors):
                 pass
             
             x.append(link)
-            print(x)
-
             ads.append(x)
-
-        pprint(ads)
 
         df = pd.DataFrame(ads, columns=['Nome', 'Endereço', 'Número', 'Links'])
         df.to_excel("Teste.xlsx", index=False)
-        print(df)
-
-
-if __name__ == "__main__":
-    webscraping = WebScraping()
-    webscraping.enter_link(links=webscraping.get_links())
-    
