@@ -12,7 +12,8 @@ class MainFrame(Frame):
     def createWidgets(self):
         def x():
             webscraping = WebScraping()
-            webscraping.enter_link(links=webscraping.get_links(value=entry.get()))
+            response = webscraping.get_links(value=entry.get())
+            webscraping.enter_link(links=response[0], name=response[1])
         
         
         labelf = LabelFrame(self, text="Área de pesquisa")

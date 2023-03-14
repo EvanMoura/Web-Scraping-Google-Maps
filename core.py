@@ -73,14 +73,14 @@ class WebScraping(Bcolors):
   
             time.sleep(1)
 
-        return links
+        return links, value
 
-    def enter_link(self, links: list):
+    def enter_link(self, links: list, name: str):
         print(f"{Bcolors.OKBLUE} Links obtidos: [{len(links)}]{Bcolors.ENDC}")
         
         ads = []
         for link in links:
-            print(f"\n[{self.hour()}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
+            # print(f"\n[{self.hour()}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
             x = []
 
             time.sleep(1)
@@ -131,4 +131,4 @@ class WebScraping(Bcolors):
             ads.append(x)
 
         df = pd.DataFrame(ads, columns=['Nome', 'Endereço', 'Número', 'Links'])
-        df.to_excel("Teste.xlsx", index=False)
+        df.to_excel(f"{name}.xlsx", index=False)
