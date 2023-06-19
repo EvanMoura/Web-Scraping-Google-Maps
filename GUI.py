@@ -1,5 +1,6 @@
+import  time
 from tkinter.ttk import Frame, Label, Entry, Button, LabelFrame
-from tkinter import Tk
+from tkinter import Tk, filedialog, END
 from core import WebScraping
 from threading import Thread
 
@@ -10,21 +11,49 @@ class MainFrame(Frame):
         self.createWidgets()
         
     def createWidgets(self):
-        def x():
+        def search():
             webscraping = WebScraping()
-            response = webscraping.get_links(value=entry.get())
+            response = webscraping.get_links(value=entry_1.get())
             webscraping.enter_link(links=response[0], name=response[1])
+            
+        def file_search():
+            filepath = filedialog.askopenfilename(defaultextension='.txt')
+            entry_2.delete(0, END)
+            entry_2.insert(0, filepath)
+            
+            words = []
+            with open(file=filepath, mode='r', encoding='UTF-8') as file:
+                for word in file.readlines():
+                    words.append(word.strip())
+            
+            webscraping = WebScraping()
+            
+            for word in words:
+                response = webscraping.get_links(value=word)
+                webscraping.enter_link(links=response[0], name=response[1])
+                time.sleep(60 * 1)
         
         
         labelf = LabelFrame(self, text="Área de pesquisa")
-        label_desc = Label(labelf, text="Pesquisa")
-        entry = Entry(labelf, width=40)
-        button_search = Button(labelf, text="Pesquisar", command=lambda: Thread(target=x).start())
+        label_desc_1 = Label(labelf, text="Pesquisa")
+        entry_1 = Entry(labelf, width=40)
+        button_search_1 = Button(labelf, text="Pesquisar", command=lambda: Thread(target=search).start())
+    
+        label_desc_2 = Label(labelf, text="Arquivo")
+        entry_2 = Entry(labelf, width=40)
+        button_search_2 = Button(labelf, text="Abrir...", command=lambda: Thread(target=file_search).start())
+        
+        
         
         labelf.grid(row=0, column=0, padx=10, pady=10)
-        label_desc.grid(row=0, column=0)
-        entry.grid(row=0, column=1)
-        button_search.grid(row=0, column=2)
+        
+        label_desc_1.grid(row=0, column=0)
+        entry_1.grid(row=0, column=1)
+        button_search_1.grid(row=0, column=2)
+        
+        label_desc_2.grid(row=1, column=0)
+        entry_2.grid(row=1, column=1)
+        button_search_2.grid(row=1, column=2)
 
 
 class App(Tk):

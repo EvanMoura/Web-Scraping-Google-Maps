@@ -1,4 +1,5 @@
 # System
+import os
 import time
 import pandas as pd
 import selenium.common.exceptions
@@ -39,39 +40,43 @@ class WebScraping(Bcolors):
         self.options.add_experimental_option("prefs", {'profile.default_content_setting_values.cookies': 2})
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=self.options)
         self.action = ActionChains(self.driver)
-
-    @staticmethod
-    def hour():
-        hour = datetime.today()
-        return str(hour)[:-7].replace(" ", "] [")
-
+        
+        try:
+            os.mkdir("Resultados")
+            
+        except FileExistsError:
+            pass
+        
     def get_links(self, value) -> list:
         links = []
 
         self.driver.get(f"https://www.google.com.br/maps/search/{value}/")
-        home = self.driver.find_element(By.XPATH, self.home)
-
-  
+        
         # Coleta de Links da pesquisa
-        while True:
-            links_element = self.driver.find_elements(By.XPATH, self.ads)
-            for link_element in links_element:
-                link = link_element.get_attribute("href")
-                if link not in links:
-                    links.append(link)
+        try:
+            home = self.driver.find_element(By.XPATH, self.home)
+            while True:
+                links_element = self.driver.find_elements(By.XPATH, self.ads)
+                for link_element in links_element:
+                    link = link_element.get_attribute("href")
+                    if link not in links:
+                        links.append(link)
 
-            home.send_keys(Keys.PAGE_DOWN)
+                home.send_keys(Keys.PAGE_DOWN)
 
-            try:
-                self.driver.find_element(By.XPATH, self.end_page)
-                print(f"[{self.hour()}] [{self.OKGREEN}Coleta de links concluido{self.ENDC}]")
-                break
+                try:
+                    self.driver.find_element(By.XPATH, self.end_page)
+                    print(f"[{datetime.now().strftime('%H:%M:%S')}] [{self.OKGREEN}Coleta de links concluido{self.ENDC}]")
+                    break
 
-            except selenium.common.exceptions.NoSuchElementException:
-                pass
+                except selenium.common.exceptions.NoSuchElementException:
+                    pass
 
-  
-            time.sleep(1)
+    
+                time.sleep(1)
+                
+        except selenium.common.exceptions.ElementNotInteractableException:
+            pass
 
         return links, value
 
@@ -82,7 +87,7 @@ class WebScraping(Bcolors):
         
         try:
             for link in links:
-                print(f"\n[{self.hour()}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
+                print(f"\n[{datetime.now().strftime('%H:%M:%S')}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
                 x = []
 
                 time.sleep(1)
@@ -137,4 +142,4 @@ class WebScraping(Bcolors):
         
         finally:
             df = pd.DataFrame(ads, columns=['Nome', 'Endereço', 'Número', 'Links'])
-            df.to_excel(f"Resultados da pesquisa ({name}) ({datetime.now().strftime('%d-%m-%Y %H-%M-%S')}).xlsx", index=False)
+            df.to_excel(f"Resultados/Resultados da pesquisa ({name}) ({datetime.now().strftime('%d-%m-%Y %H-%M-%S')}).xlsx", index=False)
