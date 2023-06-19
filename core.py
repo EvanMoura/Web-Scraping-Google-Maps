@@ -20,19 +20,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 console = Console()
 
 
-class Bcolors:
-    HEADER    = '\033[95m'
-    OKBLUE    = '\033[94m'
-    OKCYAN    = '\033[96m'
-    OKGREEN   = '\033[92m'
-    WARNING   = '\033[93m'
-    FAIL      = '\033[91m'
-    ENDC      = '\033[0m'
-    BOLD      = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-
-class WebScraping(Bcolors):
+class WebScraping:
     home = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]'
     ads      = '//a[@class="hfpxzc"]'
     end_page = '//span[@class="HlvSq"]'
@@ -91,7 +79,7 @@ class WebScraping(Bcolors):
         return links, value
 
     def enter_link(self, links: list, input: str):
-        print(f"{Bcolors.OKBLUE} Links obtidos: [{len(links)}]{Bcolors.ENDC}")
+        console.log(f"[blue]Links obtidos: [{len(links)}][/]")
         
         data = []
         
