@@ -41,7 +41,7 @@ class WebScraping:
         
         with sqlite3.connect(database='.data/Google Maps.sqlite') as db:
             cursor = db.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS Resultados(Nome TEXT, Endereço TEXT, Telefone TEXT, Site TEXT, Input TEXT, Link TEXT);")
+            cursor.execute("CREATE TABLE IF NOT EXISTS Resultados(Date TEXT, Nome TEXT, Endereço TEXT, Telefone TEXT, Site TEXT, Input TEXT, Link TEXT);")
             
         
         
@@ -118,7 +118,7 @@ class WebScraping:
                 
                 line['link'] = link
                 line['input'] = input
-                
+                line['date'] = datetime.now().strftime('%d/%m/%Y')
                 columns = ['name', 'website', 'telphone', 'address', 'link', 'input']
                 for column in columns:
                     if column not in line.keys():
@@ -139,9 +139,9 @@ class WebScraping:
                     if not result:
                         cursor.execute(
                             """
-                                INSERT INTO Resultados (Nome, Endereço, Telefone, Site, Input, Link)
-                                VALUES (?, ?, ?, ?, ?, ?)
+                                INSERT INTO Resultados (Data, Nome, Endereço, Telefone, Site, Input, Link)
+                                VALUES (?, ?, ?, ?, ?, ?, ?)
                             """,
-                            (line['name'], line['address'], line['telphone'], line['website'], line['input'], line['link'],)
+                            (line['date'], line['name'], line['address'], line['telphone'], line['website'], line['input'], line['link'],)
                         )
                         console.log(f"[[green]Inserindo resultado de busca[/]] {line['name']}")
