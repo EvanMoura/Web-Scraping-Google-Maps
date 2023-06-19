@@ -1,9 +1,11 @@
 # System
 import os
 import time
+import sqlite3
 import pandas as pd
 import selenium.common.exceptions
 from datetime import datetime
+from rich.console import Console
 
 # Selenium
 from selenium import webdriver
@@ -13,7 +15,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.action_chains import ActionChains
-# from selenium.webdriver.support import expected_conditions as EC
+
+
+console = Console()
 
 
 class Bcolors:
@@ -42,12 +46,18 @@ class WebScraping(Bcolors):
         self.action = ActionChains(self.driver)
         
         try:
-            os.mkdir("Resultados")
+            os.mkdir(".data")
             
         except FileExistsError:
             pass
         
-    def get_links(self, value) -> list:
+        with sqlite3.connect(database='.data/Google Maps.sqlite') as db:
+            cursor = db.cursor()
+            cursor.execute("CREATE TABLE IF NOT EXISTS Resultados(Nome TEXT, Endereço TEXT, Telefone TEXT, Input TEXT, Link TEXT);")
+            
+        
+        
+    def get_links(self, value: str) -> list:
         links = []
 
         self.driver.get(f"https://www.google.com.br/maps/search/{value}/")
@@ -80,15 +90,15 @@ class WebScraping(Bcolors):
 
         return links, value
 
-    def enter_link(self, links: list, name: str):
+    def enter_link(self, links: list, input: str):
         print(f"{Bcolors.OKBLUE} Links obtidos: [{len(links)}]{Bcolors.ENDC}")
         
-        ads = []
+        data = []
         
         try:
             for link in links:
                 print(f"\n[{datetime.now().strftime('%H:%M:%S')}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
-                x = []
+                line = {}
 
                 time.sleep(1)
                 self.driver.get(url=link)
@@ -98,48 +108,60 @@ class WebScraping(Bcolors):
                 # Obtendo nome
                 name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div/div[1]/div[1]/h1'
                 name_store_element = self.driver.find_element(By.XPATH, name_store)
-                x.append(name_store_element.text)
+                line['name'] = (name_store_element.text)
 
                 # Obtendo endereço
                 try:
-                    
                     a = 0
                     elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
                     for i in elements_number:
                         value = i.get_attribute("aria-label")
                         if 'Endereço: ' in str(value):
-                            x.append(str(value).replace("Endereço: ", ""))
+                            line['address'] = str(value).replace("Endereço: ", "")
                             a += 1
                             
                     if a == 0:
-                        x.append("Sem informação")
+                        line['address'] =  "Sem informação"
         
                 except selenium.common.exceptions.NoSuchElementException:
                     pass
 
                 # Obtendo número
                 try:
-                    
                     b = 0
                     elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
                     for i in elements_number:
                         value = i.get_attribute("aria-label")
                         if 'Telefone: ' in str(value):
-                            x.append(str(value).replace("Telefone: ", ""))
+                            line['telphone'] = str(value).replace("Telefone: ", "")
                             b += 1
                             
                     if b == 0:
-                        x.append("Sem informação")
+                        line['telphone'] = "Sem informação"
     
                 except selenium.common.exceptions.NoSuchElementException:
                     pass
                 
-                x.append(link)
-                ads.append(x)
+                line['link'] = link
+                line['input'] = input
+                data.append(line)
 
         except KeyboardInterrupt:
             self.driver.close()
         
         finally:
-            df = pd.DataFrame(ads, columns=['Nome', 'Endereço', 'Número', 'Links'])
-            df.to_excel(f"Resultados/Resultados da pesquisa ({name}) ({datetime.now().strftime('%d-%m-%Y %H-%M-%S')}).xlsx", index=False)
+            for line in data:
+                with sqlite3.connect(database='.data/Google Maps.sqlite') as db:
+                    cursor = db.cursor()
+                
+                    cursor.execute("SELECT 1 FROM Resultados WHERE Link = ?", (line['link'],))
+                    result = cursor.fetchall()
+                    if not result:
+                        cursor.execute(
+                            """
+                                INSERT INTO Resultados (Nome, Endereço, Telefone, Input, Link)
+                                VALUES (?, ?, ?, ?)
+                            """,
+                            (line['name'], line['address'], line['telphone'], line['input'], line['link'],)
+                        )
+                        console.log(f"[[green]Inserindo resultado de busca[/]] {line['name']}")

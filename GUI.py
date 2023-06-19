@@ -26,11 +26,11 @@ class MainFrame(Frame):
                 for word in file.readlines():
                     words.append(word.strip())
             
-            webscraping = WebScraping()
             
+            webscraping = WebScraping()
             for word in words:
                 response = webscraping.get_links(value=word)
-                webscraping.enter_link(links=response[0], name=response[1])
+                df = webscraping.enter_link(links=response[0], input=response[1])
                 time.sleep(60 * 1)
         
         
