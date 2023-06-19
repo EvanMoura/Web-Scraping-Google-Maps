@@ -137,4 +137,4 @@ class WebScraping(Bcolors):
         
         finally:
             df = pd.DataFrame(ads, columns=['Nome', 'Endereço', 'Número', 'Links'])
-            df.to_excel(f"{name}.xlsx", index=False)
+            df.to_excel(f"Resultados da pesquisa ({name}) ({datetime.now().strftime('%d-%m-%Y %H-%M-%S')}).xlsx", index=False)
