@@ -64,7 +64,7 @@ class WebScraping:
 
                 try:
                     self.driver.find_element(By.XPATH, self.end_page)
-                    print(f"[{datetime.now().strftime('%H:%M:%S')}] [{self.OKGREEN}Coleta de links concluido{self.ENDC}]")
+                    console.log(f"[{datetime.now().strftime('%H:%M:%S')}] [[green]Coleta de links concluido[/]]")
                     break
 
                 except selenium.common.exceptions.NoSuchElementException:
@@ -85,7 +85,7 @@ class WebScraping:
         
         try:
             for link in links:
-                print(f"\n[{datetime.now().strftime('%H:%M:%S')}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
+                console.log(f"\n[{datetime.now().strftime('%H:%M:%S')}] [Coletando dados do link] [[green]{link}[/]]")
                 line = {}
 
                 time.sleep(1)
