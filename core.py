@@ -41,7 +41,7 @@ class WebScraping:
         
         with sqlite3.connect(database='.data/Google Maps.sqlite') as db:
             cursor = db.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS Resultados(Nome TEXT, Endereço TEXT, Telefone TEXT, Input TEXT, Link TEXT);")
+            cursor.execute("CREATE TABLE IF NOT EXISTS Resultados(Nome TEXT, Endereço TEXT, Telefone TEXT, Site TEXT, Input TEXT, Link TEXT);")
             
         
         
@@ -96,42 +96,34 @@ class WebScraping:
                 # Obtendo nome
                 name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div/div[1]/div[1]/h1'
                 name_store_element = self.driver.find_element(By.XPATH, name_store)
-                line['name'] = (name_store_element.text)
-
-                # Obtendo endereço
+                line['name'] = name_store_element.text
+ 
+                # Obtendo dados
                 try:
-                    a = 0
                     elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
-                    for i in elements_number:
-                        value = i.get_attribute("aria-label")
-                        if 'Endereço: ' in str(value):
-                            line['address'] = str(value).replace("Endereço: ", "")
-                            a += 1
+                    for element in elements_number:
+                        value = element.get_attribute("aria-label")
+
+                        if 'Website: ' in str(value):
+                            line['website'] = str(value).replace("Website: ", "")
                             
-                    if a == 0:
-                        line['address'] =  "Sem informação"
-        
-                except selenium.common.exceptions.NoSuchElementException:
-                    pass
-
-                # Obtendo número
-                try:
-                    b = 0
-                    elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
-                    for i in elements_number:
-                        value = i.get_attribute("aria-label")
                         if 'Telefone: ' in str(value):
                             line['telphone'] = str(value).replace("Telefone: ", "")
-                            b += 1
                             
-                    if b == 0:
-                        line['telphone'] = "Sem informação"
-    
+                        if 'Endereço: ' in str(value):
+                            line['address'] = str(value).replace("Endereço: ", "")
+
                 except selenium.common.exceptions.NoSuchElementException:
                     pass
                 
                 line['link'] = link
                 line['input'] = input
+                
+                columns = ['name', 'website', 'telphone', 'address', 'link', 'input']
+                for column in columns:
+                    if column not in line.keys():
+                        line[column] = "Sem informação"
+
                 data.append(line)
 
         except KeyboardInterrupt:
@@ -147,9 +139,9 @@ class WebScraping:
                     if not result:
                         cursor.execute(
                             """
-                                INSERT INTO Resultados (Nome, Endereço, Telefone, Input, Link)
-                                VALUES (?, ?, ?, ?, ?)
+                                INSERT INTO Resultados (Nome, Endereço, Telefone, Site, Input, Link)
+                                VALUES (?, ?, ?, ?, ?, ?)
                             """,
-                            (line['name'], line['address'], line['telphone'], line['input'], line['link'],)
+                            (line['name'], line['address'], line['telphone'], line['website'], line['input'], line['link'],)
                         )
                         console.log(f"[[green]Inserindo resultado de busca[/]] {line['name']}")
