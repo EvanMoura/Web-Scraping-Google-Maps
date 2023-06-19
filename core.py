@@ -79,56 +79,62 @@ class WebScraping(Bcolors):
         print(f"{Bcolors.OKBLUE} Links obtidos: [{len(links)}]{Bcolors.ENDC}")
         
         ads = []
-        for link in links:
-            print(f"\n[{self.hour()}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
-            x = []
+        
+        try:
+            for link in links:
+                print(f"\n[{self.hour()}] [Coletando dados do link] [{self.OKGREEN}{link}{self.ENDC}]")
+                x = []
 
-            time.sleep(1)
-            self.driver.get(url=link)
-            self.driver.execute_script("document.body.style.zoom='50%'")
-            time.sleep(2.5)
+                time.sleep(1)
+                self.driver.get(url=link)
+                self.driver.execute_script("document.body.style.zoom='50%'")
+                time.sleep(2.5)
 
-            # Obtendo nome
-            name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[1]/h1/span[2]'
-            name_store_element = self.driver.find_element(By.XPATH, name_store)
-            x.append(name_store_element.text)
+                # Obtendo nome
+                name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div/div[1]/div[1]/h1'
+                name_store_element = self.driver.find_element(By.XPATH, name_store)
+                x.append(name_store_element.text)
 
-            # Obtendo endereço
-            try:
-                
-                a = 0
-                elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
-                for i in elements_number:
-                    value = i.get_attribute("aria-label")
-                    if 'Endereço: ' in str(value):
-                        x.append(str(value).replace("Endereço: ", ""))
-                        a += 1
-                        
-                if a == 0:
-                    x.append("Sem informação")
+                # Obtendo endereço
+                try:
+                    
+                    a = 0
+                    elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
+                    for i in elements_number:
+                        value = i.get_attribute("aria-label")
+                        if 'Endereço: ' in str(value):
+                            x.append(str(value).replace("Endereço: ", ""))
+                            a += 1
+                            
+                    if a == 0:
+                        x.append("Sem informação")
+        
+                except selenium.common.exceptions.NoSuchElementException:
+                    pass
+
+                # Obtendo número
+                try:
+                    
+                    b = 0
+                    elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
+                    for i in elements_number:
+                        value = i.get_attribute("aria-label")
+                        if 'Telefone: ' in str(value):
+                            x.append(str(value).replace("Telefone: ", ""))
+                            b += 1
+                            
+                    if b == 0:
+                        x.append("Sem informação")
     
-            except selenium.common.exceptions.NoSuchElementException:
-                pass
-
-            # Obtendo número
-            try:
+                except selenium.common.exceptions.NoSuchElementException:
+                    pass
                 
-                b = 0
-                elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
-                for i in elements_number:
-                    value = i.get_attribute("aria-label")
-                    if 'Telefone: ' in str(value):
-                        x.append(str(value).replace("Telefone: ", ""))
-                        b += 1
-                        
-                if b == 0:
-                    x.append("Sem informação")
-  
-            except selenium.common.exceptions.NoSuchElementException:
-                pass
-            
-            x.append(link)
-            ads.append(x)
+                x.append(link)
+                ads.append(x)
 
-        df = pd.DataFrame(ads, columns=['Nome', 'Endereço', 'Número', 'Links'])
-        df.to_excel(f"{name}.xlsx", index=False)
+        except KeyboardInterrupt:
+            self.driver.close()
+        
+        finally:
+            df = pd.DataFrame(ads, columns=['Nome', 'Endereço', 'Número', 'Links'])
+            df.to_excel(f"{name}.xlsx", index=False)
