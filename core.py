@@ -148,7 +148,7 @@ class WebScraping:
                         cursor.execute(
                             """
                                 INSERT INTO Resultados (Nome, Endereço, Telefone, Input, Link)
-                                VALUES (?, ?, ?, ?)
+                                VALUES (?, ?, ?, ?, ?)
                             """,
                             (line['name'], line['address'], line['telphone'], line['input'], line['link'],)
                         )
