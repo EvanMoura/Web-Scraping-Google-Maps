@@ -14,7 +14,7 @@ class MainFrame(Frame):
         def search():
             webscraping = WebScraping()
             response = webscraping.get_links(value=entry_1.get())
-            webscraping.enter_link(links=response[0], name=response[1])
+            webscraping.enter_link(links=response[0], input=response[1])
             
         def file_search():
             filepath = filedialog.askopenfilename(defaultextension='.txt')

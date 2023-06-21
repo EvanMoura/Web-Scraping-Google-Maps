@@ -41,7 +41,7 @@ class WebScraping:
         
         with sqlite3.connect(database='.data/Google Maps.sqlite') as db:
             cursor = db.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS Resultados(Date TEXT, Nome TEXT, Endereço TEXT, Telefone TEXT, Site TEXT, Input TEXT, Link TEXT);")
+            cursor.execute("CREATE TABLE IF NOT EXISTS Resultados(Data TEXT, Nome TEXT, Endereço TEXT, Telefone TEXT, Site TEXT, Input TEXT, Link TEXT);")
             
         
         
@@ -75,6 +75,9 @@ class WebScraping:
                 
         except selenium.common.exceptions.ElementNotInteractableException:
             pass
+        
+        except selenium.common.NoSuchElementException:
+            pass
 
         return links, value
 
@@ -85,21 +88,20 @@ class WebScraping:
         
         try:
             for link in links:
-                console.log(f"\n[{datetime.now().strftime('%H:%M:%S')}] [Coletando dados do link] [[green]{link}[/]]")
-                line = {}
-
-                time.sleep(1)
-                self.driver.get(url=link)
-                self.driver.execute_script("document.body.style.zoom='50%'")
-                time.sleep(2.5)
-
-                # Obtendo nome
-                name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div/div[1]/div[1]/h1'
-                name_store_element = self.driver.find_element(By.XPATH, name_store)
-                line['name'] = name_store_element.text
- 
-                # Obtendo dados
                 try:
+                    console.log(f"\n[{datetime.now().strftime('%H:%M:%S')}] [Coletando dados do link] [[green]{link}[/]]")
+                    line = {}
+
+                    time.sleep(1)
+                    self.driver.get(url=link)
+                    self.driver.execute_script("document.body.style.zoom='50%'")
+                    time.sleep(2.5)
+                    
+                    # Obtendo nome
+                    name_store = '/html/body/div[3]/div[9]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div/div[1]/div[1]/h1'
+                    name_store_element = self.driver.find_element(By.XPATH, name_store)
+                    line['name'] = name_store_element.text 
+                    
                     elements_number = self.driver.find_elements(By.CLASS_NAME, 'CsEnBe')
                     for element in elements_number:
                         value = element.get_attribute("aria-label")
@@ -112,19 +114,23 @@ class WebScraping:
                             
                         if 'Endereço: ' in str(value):
                             line['address'] = str(value).replace("Endereço: ", "")
+                            
+                        line['link'] = link
+                        line['input'] = input
+                        line['date'] = datetime.now().strftime('%d/%m/%Y')
 
+                    columns = ['name', 'website', 'telphone', 'address', 'link', 'input']
+                    for column in columns:
+                        if column not in line.keys():
+                            line[column] = "Sem informação"
+
+                    data.append(line)
+                    
                 except selenium.common.exceptions.NoSuchElementException:
                     pass
-                
-                line['link'] = link
-                line['input'] = input
-                line['date'] = datetime.now().strftime('%d/%m/%Y')
-                columns = ['name', 'website', 'telphone', 'address', 'link', 'input']
-                for column in columns:
-                    if column not in line.keys():
-                        line[column] = "Sem informação"
-
-                data.append(line)
+                    
+                except selenium.common.exceptions.JavascriptException:
+                    pass
 
         except KeyboardInterrupt:
             self.driver.close()
